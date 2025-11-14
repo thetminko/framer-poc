@@ -10,6 +10,18 @@ export function AnimatedCharts() {
   const visibleCharts = isCollapsed ? [1, 3, 5] : allCharts;
   const existingCharts = [1, 3, 5]; // Charts that are always visible
 
+  // Group definitions: first chart of each group and their titles
+  const groups = [
+    { firstChart: 1, title: "Fuel" },
+    { firstChart: 4, title: "Financial" },
+    { firstChart: 6, title: "Other" },
+  ];
+
+  const getGroupTitle = (chartIndex: number) => {
+    const group = groups.find(g => g.firstChart === chartIndex);
+    return group?.title;
+  };
+
   const getGridColumn = (chartIndex: number, collapsed: boolean) => {
     if (collapsed) {
       // In collapsed state, charts appear consecutive:
@@ -73,47 +85,79 @@ export function AnimatedCharts() {
             // Chart 4 starts group 2 in row 1 (has group 1 on the left) - needs gap
             // Chart 6 starts group 3 in row 2 (no group on the left) - no gap
             const isGroupStart = !isCollapsed && chartIndex === 4;
+            const groupTitle = !isCollapsed ? getGroupTitle(chartIndex) : null;
+            const isFirstInGroup = groupTitle !== null;
 
             return (
               <motion.div
                 key={chartIndex}
-                layoutId={`chart-${chartIndex}`}
-                className="w-[250px] h-[250px] shrink-0"
+                layoutId={`chart-container-${chartIndex}`}
+                className="flex flex-col gap-2"
                 style={{
                   gridColumn: gridCol,
                   gridRow: gridRow,
                   marginLeft: isGroupStart ? '32px' : undefined
                 }}
-                initial={isExistingChart ? false : { opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{
-                  opacity: 0,
-                  scale: 0.5,
-                  transition: {
-                    duration: 0.2,
-                    ease: [0.4, 0, 0.2, 1]
-                  }
-                }}
+                initial={false}
+                animate={{ opacity: 1 }}
                 transition={{
                   layout: {
                     duration: 0.3,
                     ease: [0.4, 0, 0.2, 1],
                     delay: isCollapsed && isExistingChart ? 0.25 : 0
-                  },
-                  opacity: isExistingChart ? { duration: 0 } : {
-                    duration: 0.3,
-                    ease: [0.4, 0, 0.2, 1],
-                    delay: getEntranceDelay()
-                  },
-                  scale: isExistingChart ? { duration: 0 } : {
-                    duration: 0.3,
-                    ease: [0.4, 0, 0.2, 1],
-                    delay: getEntranceDelay()
                   }
                 }}
                 layout
               >
-                <PieChart />
+                {isFirstInGroup && (
+                  <motion.h3
+                    className="text-lg font-semibold text-center mb-0"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: [0.4, 0, 0.2, 1],
+                      delay: getEntranceDelay()
+                    }}
+                  >
+                    {groupTitle}
+                  </motion.h3>
+                )}
+                <motion.div
+                  layoutId={`chart-${chartIndex}`}
+                  className="w-[250px] h-[250px] shrink-0"
+                  initial={isExistingChart ? false : { opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.5,
+                    transition: {
+                      duration: 0.2,
+                      ease: [0.4, 0, 0.2, 1]
+                    }
+                  }}
+                  transition={{
+                    layout: {
+                      duration: 0.3,
+                      ease: [0.4, 0, 0.2, 1],
+                      delay: isCollapsed && isExistingChart ? 0.25 : 0
+                    },
+                    opacity: isExistingChart ? { duration: 0 } : {
+                      duration: 0.3,
+                      ease: [0.4, 0, 0.2, 1],
+                      delay: getEntranceDelay()
+                    },
+                    scale: isExistingChart ? { duration: 0 } : {
+                      duration: 0.3,
+                      ease: [0.4, 0, 0.2, 1],
+                      delay: getEntranceDelay()
+                    }
+                  }}
+                  layout
+                >
+                  <PieChart />
+                </motion.div>
               </motion.div>
             );
           })}
