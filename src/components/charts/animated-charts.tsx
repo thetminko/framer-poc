@@ -6,22 +6,22 @@ import { useState } from "react";
 export function AnimatedCharts() {
   const [isCollapsed, setCollapsed] = useState(true);
 
-  const allCharts = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-  const visibleCharts = isCollapsed ? [1, 3, 6] : allCharts;
-  const existingCharts = [1, 3, 6]; // Charts that are always visible
+  const allCharts = [1, 2, 3, 4, 5, 6, 7, 8];
+  const visibleCharts = isCollapsed ? [1, 3, 5] : allCharts;
+  const existingCharts = [1, 3, 5]; // Charts that are always visible
 
   const getGridColumn = (chartIndex: number, collapsed: boolean) => {
     if (collapsed) {
       // In collapsed state, charts appear consecutive:
-      // Chart 1 → position 1, Chart 3 → position 2, Chart 6 → position 3
-      const collapsedMap: Record<number, number> = { 1: 1, 3: 2, 6: 3 };
+      // Chart 1 → position 1, Chart 3 → position 2, Chart 5 → position 3
+      const collapsedMap: Record<number, number> = { 1: 1, 3: 2, 5: 3 };
       return collapsedMap[chartIndex] || 0;
     } else {
-      // In expanded state, charts 1-6 in first row, 7-9 in second row
-      if (chartIndex <= 6) {
+      // In expanded state, charts 1-5 in first row, 6-8 in second row
+      if (chartIndex <= 5) {
         return chartIndex;
       } else {
-        return chartIndex - 6;
+        return chartIndex - 5;
       }
     }
   };
@@ -30,7 +30,7 @@ export function AnimatedCharts() {
     if (collapsed) {
       return 1;
     } else {
-      return chartIndex <= 6 ? 1 : 2;
+      return chartIndex <= 5 ? 1 : 2;
     }
   };
 
@@ -40,7 +40,7 @@ export function AnimatedCharts() {
         {isCollapsed ? "Expand" : "Collapse"}
       </Button>
       <motion.div
-        className="grid grid-cols-6 gap-4 justify-center items-center"
+        className="grid grid-cols-5 gap-4 justify-center items-center"
         layout
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       >
@@ -56,12 +56,12 @@ export function AnimatedCharts() {
             const getEntranceDelay = () => {
               if (isExistingChart) return 0;
 
-              // New charts in first row (2, 4, 5) appear with staggered delay
-              if (chartIndex <= 6) {
+              // New charts in first row (2, 4) appear with staggered delay
+              if (chartIndex <= 5) {
                 return (chartIndex - 1) * 0.05;
               }
-              // Charts in second row (7, 8, 9) appear after first row
-              return 0.2 + (chartIndex - 7) * 0.05;
+              // Charts in second row (6, 7, 8) appear after first row
+              return 0.2 + (chartIndex - 6) * 0.05;
             };
 
             return (
