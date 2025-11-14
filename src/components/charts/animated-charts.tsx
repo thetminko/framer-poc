@@ -17,10 +17,12 @@ export function AnimatedCharts() {
       const collapsedMap: Record<number, number> = { 1: 1, 3: 2, 5: 3 };
       return collapsedMap[chartIndex] || 0;
     } else {
-      // In expanded state, charts 1-5 in first row, 6-8 in second row
+      // In expanded state: Row 1 has charts 1-5, Row 2 has charts 6-8
       if (chartIndex <= 5) {
+        // Row 1: charts 1-5 in columns 1-5
         return chartIndex;
       } else {
+        // Row 2: charts 6-8 in columns 1-3
         return chartIndex - 5;
       }
     }
@@ -30,6 +32,7 @@ export function AnimatedCharts() {
     if (collapsed) {
       return 1;
     } else {
+      // In expanded state: Row 1 has charts 1-5, Row 2 has charts 6-8
       return chartIndex <= 5 ? 1 : 2;
     }
   };
@@ -40,7 +43,7 @@ export function AnimatedCharts() {
         {isCollapsed ? "Expand" : "Collapse"}
       </Button>
       <motion.div
-        className="grid grid-cols-5 gap-4 justify-center items-center"
+        className={`grid gap-1 justify-center items-center grid-cols-5`}
         layout
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       >
@@ -56,13 +59,20 @@ export function AnimatedCharts() {
             const getEntranceDelay = () => {
               if (isExistingChart) return 0;
 
-              // New charts in first row (2, 4) appear with staggered delay
+              // New charts appear with staggered delay
               if (chartIndex <= 5) {
+                // Row 1: charts 2, 4 appear with staggered delay
                 return (chartIndex - 1) * 0.05;
+              } else {
+                // Row 2: charts 6, 7, 8 appear after first row
+                return 0.2 + (chartIndex - 6) * 0.05;
               }
-              // Charts in second row (6, 7, 8) appear after first row
-              return 0.2 + (chartIndex - 6) * 0.05;
             };
+
+            // Check if this chart starts a new group and has a group on the left in the same row
+            // Chart 4 starts group 2 in row 1 (has group 1 on the left) - needs gap
+            // Chart 6 starts group 3 in row 2 (no group on the left) - no gap
+            const isGroupStart = !isCollapsed && chartIndex === 4;
 
             return (
               <motion.div
@@ -71,7 +81,8 @@ export function AnimatedCharts() {
                 className="w-[250px] h-[250px] shrink-0"
                 style={{
                   gridColumn: gridCol,
-                  gridRow: gridRow
+                  gridRow: gridRow,
+                  marginLeft: isGroupStart ? '32px' : undefined
                 }}
                 initial={isExistingChart ? false : { opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
